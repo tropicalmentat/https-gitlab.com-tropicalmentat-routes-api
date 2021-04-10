@@ -30,7 +30,7 @@ try:
 
     @app.route('/')
     def fetch_all_bike_parking():
-        cur.execute("SELECT * FROM traffic where fclass='parking_bicycle'")
+        cur.execute("SELECT *,ST_X(ST_Transform(geom,4326)) as long,ST_Y(ST_Transform(geom,4326)) as lat FROM traffic where fclass='parking_bicycle'")
         rows = cur.fetchall()
 
         return flask.jsonify(rows)
