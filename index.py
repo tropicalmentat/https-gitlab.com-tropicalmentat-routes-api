@@ -32,7 +32,11 @@ try:
 
     @app.route('/get-bike-parking')
     def fetch_all_bike_parking():
-        cur.execute("SELECT *,ST_X(ST_Transform(geom,4326)) as long,ST_Y(ST_Transform(geom,4326)) as lat FROM traffic where fclass='parking_bicycle'")
+        coords = request.args.getlist('point')
+        destination = coords[1].split(',')
+
+        cur.execute(f"select osm_id,gid,ST_Y(geom) as lat,ST_X(geom) as lng from (select osm_id,gid,geom, ST_Contains(ST_Buffer(ST_Transform(ST_SetSRID(ST_Point({destination[1]},{destination[0]}),4326),32651),200),ST_Transform(geom,32651)) as result from traffic where fclass='parking_bicycle') as res where result='t';")
+
         rows = cur.fetchall()
 
         return jsonify(rows)
@@ -47,4 +51,4 @@ try:
         return r.text
 
 except Exception as e:
-	print(e)
+	print('Oops, something went wrong')
