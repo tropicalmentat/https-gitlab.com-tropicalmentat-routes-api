@@ -21,11 +21,11 @@ app.config["DEBUG"] = True
 CORS(app)
 
 try:
-    @app.route('/')
-    def index():
-        '''Index page route'''
+    #@app.route('/')
+    #def index():
+    #    '''Index page route'''
 
-        return '<h1>TEST ROWT API<h1>'
+    #    return '<h1>TEST ROWT API<h1>'
 
 
     con = psycopg2.connect(
@@ -41,12 +41,13 @@ try:
     def fetch_all_bike_parking():
         coords = request.args.getlist('point')
         destination = coords[1].split(',')
-
-        cur.execute(f"select osm_id,gid,ST_Y(geom) as lat,ST_X(geom) as lng from (select osm_id,gid,geom, ST_Contains(ST_Buffer(ST_Transform(ST_SetSRID(ST_Point({destination[1]},{destination[0]}),4326),32651),200),ST_Transform(geom,32651)) as result from traffic where fclass='parking_bicycle') as res where result='t';")
+        #destination = '14.55094,121.04971'
+        cur.execute(f"select osm_id,ST_Y(ST_Transform(geom,4326))as lat,ST_X(ST_Transform(geom,4326)) as lng from (select osm_id,way as geom, ST_Contains(ST_Buffer(ST_Transform(ST_SetSRID(ST_Point({destination[1]},{destination[0]}),4326),32651),200),ST_Transform(way,32651)) as result from planet_osm_point where tags->'amenity'='bicycle_parking') as res where result='t';")
 
         rows = cur.fetchall()
 
         return jsonify(rows)
+        
 
     @app.route('/route')
     def fetch_route():
@@ -58,4 +59,7 @@ try:
         return r.text
 
 except Exception as e:
-	print('Oops, something went wrong')
+	print(e)
+
+if __name__ == '__main__':
+    app.run()
