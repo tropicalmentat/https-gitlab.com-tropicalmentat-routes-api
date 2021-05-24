@@ -21,11 +21,11 @@ app.config["DEBUG"] = True
 CORS(app)
 
 try:
-    #@app.route('/')
-    #def index():
-    #    '''Index page route'''
+    @app.route('/')
+    def index():
+        '''Index page route'''
 
-    #    return '<h1>TEST ROWT API<h1>'
+        return '<h1>TEST ROWT API<h1>'
 
 
     con = psycopg2.connect(
